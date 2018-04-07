@@ -44,10 +44,10 @@ public class Compiler {
 
     // Global variables  
     // used to get positions on the symbol table
-    private int index = 0;
+    private static int index = 0;
     // used to travel navigate on the string
-    private int interator = 0;
-    public boolean error = false;
+    private static int interator = 0;
+    public static boolean error = false;
 
 
     // Conferir os simbolos abaixo com nossa tabela de simbolos
@@ -58,15 +58,14 @@ public class Compiler {
     
     // Creation of symbol table 
     private static Map<Integer,TokLex> reservado = new HashMap<Integer,TokLex>();	 																		
-    
-    static String[] r = {"const", "var", "integer",	"char",	"for", "if","else",	"and", "or", "not", "=", "to", "(",")","<",">","<>",">=","<=",",","+","-","*","/",";","{","}","then","readln","step", "write", "writeln",	"%", "[", "]", "do"	};      
-
+    static String[] r = {"final", "int", "char", "for", "if", "else", "and", "or", "not", "to", "begin", "end", "then", "readln", "step", "write", "writeln", "do", "<_", "(", ")", "<", ">", "<>", ">=", "=<", ",", "+", "-", "*", "/", ";", "%", "[", "]"};
         
     // TODO base on each state of the automat
     public static TokenLex analisadorLexico(){
         TokenLex token;
         int state;
         char c = token.charAt();
+        for ()
         switch (state) {
             // Create every case equals of the automato que vc criou fdp fazendo os if e etc pra cada um e separando  (sendo cada bolinha um case)
             case 0:
