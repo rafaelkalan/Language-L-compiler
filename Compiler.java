@@ -4,7 +4,6 @@ class TokenLex {
 
     String Token = "";
     String Lex = "";
-    TokenLex TL = new TokenLex();
 
     public TokenLex(){
         // contructor vazio
@@ -68,12 +67,13 @@ public class Compiler {
         while (sc.hasNext()){
             result = result + sc.nextLine().toLowerCase()+" ";
         }
+        System.out.println(result);
         return result;
     }
     
     public static boolean contains(char [] arr, char c){
         boolean result = false;
-        for(int i=0; i<=arr.length; i++){
+        for(int i=0; i<arr.length; i++){
             if(arr[i] == c){
                 result = true;
             }
@@ -81,8 +81,8 @@ public class Compiler {
         return result;
     }
 
-    public static String returnIt(String lexema, int index){
-        return lexema.substring(index, lexema.length());
+    public static String returnIt(String l, int i){
+        return lexema.substring(i, l.length());
     }
 
     public static boolean containsTok(String s, Map<Integer,TokenLex> m) {
@@ -121,70 +121,95 @@ public class Compiler {
                         interator++;   
                         tmpLexema = tmpLexema+c;
                         state = 2;
+                        tl.setToken("id");
                     } else if ( contains(letter,c)) {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 1;
+                        tl.setToken("id");
                     } else if ( contains(digit, c)) {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 3;
+                        tl.setToken("val");
                     } else if ( c == '<') {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 4;
                     } else if ( c == '>') {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 5;
                     } else if ( c == '/') {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         // duvida pro be
                         tmpLexema = tmpLexema+c;
                         state = 7;
                     } else if ( contains(symbols, c)) {
-                        // duvida pro be
-                        state = 6;
+                        System.out.println(" >> " + c + " << " + " -- " + state);
+                        interator++;
+                        tmpLexema = tmpLexema+c;
+                        state = 99;
                     } else if ( c == '0') {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         // pode entrar em conflito com digito
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 10;
-                    } else if ( c == ' ' || c == '\n') {
+                    } else if ( c == ' ') {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         state = 0;
                     } else if(c == '\"'){
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         state = 13;
+                    } else if (c == '\''){
+                        System.out.println(" >> " + c + " << " + " -- " + state);
+                        interator++;
+                        state = 6;
                     } else {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         // Error
                         state = 666;
                     }
                     break;
                 case 1:
                     if (contains(letter, c) || contains(digit, c) || c == '_'){
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 1;
                     } else {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
+                        System.out.println("--------------------" + tmpLexema +"---------------");
                         // novo lexama e formado
-                        lexema = returnIt(lexema, index);
+                        lexema = returnIt(lexema, interator);
                         // reseta posição
                         interator = 0;
                         // aceitação
                         state = 99;
+                        System.out.println("--------------------" + tmpLexema +"---------------");
                     }
                     break;
                 case 2:
                     if(contains(letter, c) || contains(digit, c)){
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 1;
                     }else if(c == '_'){
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 2;
                     } else {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         // aceitação
                         lexema = returnIt(lexema, interator);
                         interator = 0;
@@ -193,66 +218,72 @@ public class Compiler {
                     break;
                 case 3:
                     if(contains(digit, c)) {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 3;
                     } else {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         // aceitação
+                        lexema = returnIt(lexema, interator);
                         interator = 0;
-                        lexema = returnIt(lexema, index);
                         state = 99;
                     }
                     break;
                 case 4:
                     if( c == '='){
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+c;
                         interator++;
                         state = 99;
                     }else if( c == '>') {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+c;
                         interator++;
                         state = 99;
                     } else if( c == '-'){
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+c;
                         interator++;
                         state = 99;
                     } else {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         // aceitação
+                        lexema = returnIt(lexema, interator);
                         interator = 0;
-                        lexema = returnIt(lexema, index);
                         state = 99;    
                     }
                     break;
                 case 5:
                     if(c == '=') {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+c;
                         interator++;
                         state = 99;
                     } else {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         //aceitação
+                        lexema = returnIt(lexema, interator);
                         interator = 0;
-                        lexema = returnIt(lexema, index);
                         state = 99;
                     }
                     break;
                 case 6:
-                    if (contains(symbols, c)) {
+                    if (contains(symbols, c) || contains(letter, c) || contains(digit, c)) {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+c;
                         interator++;
-                        state = 6;
-                    } else {
-                        //aceitação
-                        interator = 0;
-                        lexema = returnIt(lexema, index);
-                        state = 99;
+                        state = 11;
                     }
                     break;
                 case 7:
-                    // comentario ou dividir
+                // comentario ou dividir
                     if (c == '*') {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         state = 8;
                     } else {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         // criar dividir
                         lexema = returnIt(lexema, index);
                         interator = 0;
@@ -262,9 +293,11 @@ public class Compiler {
                 case 8:
                     // comentario
                     if (c == '*') {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         state = 9;
                     } else {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         state = 8;
                     } 
@@ -272,53 +305,69 @@ public class Compiler {
                 case 9:
                     // comentario finish
                     if(c == '/'){
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
+                        tmpLexema = "";
                         state = 0;
                     } else {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         state = 8;
                     }
                     break;
                 case 10:
                     if (contains(hex, c)){
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+c;
                         interator++;
                         state = 10;
                     } else if (c == 'h'){
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+c;
                         // duvida
                         interator++;
                         state = 99;
                     } else {
-
                     }
                     break;
                 case 11:
+                    // Finishing char
+                    if(c == '\''){
+                       interator++;
+                       state = 99; 
+                    }
                     break;
                 case 12:
                     break;
                 case 13:
-                    if (c != '\"') {
+                    if (contains(letter, c) || contains(digit, c) || contains(symbols, c) || c == ' ') {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+c;
                         interator++;
                         state = 13;
-                    } else {
+                    } else if (c == '\"' || c == '$' || c == '\n') {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+"$";
                         interator++;
-                        lexema = returnIt(lexema, interator);
                         state = 99;
                     }
                     break;
+                case 14:
+                    break;
                 case 99:
-                    if(!alphabet.containsKey(tmpLexema)){
+                    if(!(containsTok(tmpLexema,alphabet))){
+                        //if(!alphabet.containsKey(tmpLexema)){
+                        System.out.println(" >> " + tmpLexema + " << " + " -- " + state);
                         tl.setLex((tmpLexema));
                         alphabet.put(index,tl);
                         index++;
                     } else {
+                        System.out.println(" >> " + tmpLexema + " << " + " -- " + state);
                         tl.setToken(getToken(tmpLexema, alphabet));
                     }
                     return tl.getToken();
                 case 666:
+                    System.out.println(" >> " + c + " << " + " -- " + state);
                     interator = lexema.length();
                     System.out.println("Caractere inválido " + "( " + c + " )" );
                     break;
@@ -347,8 +396,11 @@ public class Compiler {
             alphabet.put(index, tl);
             index++;
         }
-
-        token = analisadorLexico();
+        int x = 0;
+        while (x < 200){
+            token = analisadorLexico();
+            x++;
+        }
         // Daqui pra baixo e putaria do David e do leo
         //S();
         if(interator < lexema.length()){
@@ -358,6 +410,3 @@ public class Compiler {
     }
 
 }
-
-
-
