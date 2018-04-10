@@ -128,6 +128,12 @@ public class Compiler {
                         tmpLexema = tmpLexema+c;
                         state = 1;
                         tl.setToken("id");
+                    } else if ( c == '0') {
+                        System.out.println(" >> " + c + " << " + " -- " + state);
+                        // pode entrar em conflito com digito
+                        interator++;
+                        tmpLexema = tmpLexema+c;
+                        state = 10;
                     } else if ( contains(digit, c)) {
                         System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
@@ -155,12 +161,6 @@ public class Compiler {
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 99;
-                    } else if ( c == '0') {
-                        System.out.println(" >> " + c + " << " + " -- " + state);
-                        // pode entrar em conflito com digito
-                        interator++;
-                        tmpLexema = tmpLexema+c;
-                        state = 10;
                     } else if ( c == ' ') {
                         System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
@@ -320,14 +320,13 @@ public class Compiler {
                         System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+c;
                         interator++;
-                        state = 10;
+                        state = 12;
                     } else if (c == 'h'){
                         System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+c;
                         // duvida
                         interator++;
                         state = 99;
-                    } else {
                     }
                     break;
                 case 11:
@@ -338,6 +337,12 @@ public class Compiler {
                     }
                     break;
                 case 12:
+                    if (contains(hex, c)){
+                        System.out.println(" >> " + c + " << " + " -- " + state);
+                        tmpLexema = tmpLexema+c;
+                        interator++;
+                        state = 14;
+                    }
                     break;
                 case 13:
                     if (contains(letter, c) || contains(digit, c) || contains(symbols, c) || c == ' ') {
@@ -353,6 +358,17 @@ public class Compiler {
                     }
                     break;
                 case 14:
+                    if (c == 'h'){
+                        System.out.println(" >> " + c + " << " + " -- " + state);
+                        tmpLexema = tmpLexema+c;
+                        // duvida
+                        interator++;
+                        state = 99;
+                    } else {
+                        tmpLexema = tmpLexema+c;
+                        interator++;
+                        state = 3;
+                    }
                     break;
                 case 99:
                     if(!(containsTok(tmpLexema,alphabet))){
