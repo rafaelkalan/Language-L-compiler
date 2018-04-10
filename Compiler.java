@@ -400,8 +400,248 @@ public class Compiler {
     // Lembrar de usar a variavel error aqui para parar o programa caso fim de arquivo não esperado
     public static void casaToken(String token_expected) {
         // toke esperado avalia e pega proximo
-        // senao error
-        //GG
+        if(TL.getLex().equals(token_expected)) {
+            token = analisadorLexico();
+            if(error = true){
+                System.exit(0);
+            }
+        }else{
+            System.out.println("ERRO : Token não esperado (" +token+")");
+        }
+    }
+
+    public static void S (){
+        while(TL.getLex().equals("int") || TL.getLex().equals("char") || TL.getLex().equals("final")){
+            D();
+        }while(TL.getLex().equals("id") || TL.getLex().equals("For") || TL.getLex().equals("if") || TL.getLex().equals(";") || TL.getLex().equals("readln") || TL.getLex().equals("write") || TL.getLex().equals("writeln")){
+            C();
+        }
+
+    }
+
+    public static void D(){
+        if(TL.getLex().equals("int")){
+            casaToken("int");
+            casaToken("id");
+            Y();
+            casaToken(",");
+            while(TL.getLex().equals("id")){
+                casaToken("id");
+                Y();
+                casaToken(",");
+            }
+        }
+        else if(TL.getLex().equals("char")){
+            casaToken("char");
+            casaToken("id");
+            Y();
+            casaToken(",");
+            while(TL.getLex().equals("id")){
+                casaToken("id");
+                Y();
+                casaToken(",");
+            }
+        }
+        else{
+            casaToken("final");
+            casaToken("id");
+            casaToken("=");
+            if(TL.getLex().equals("-")){
+                casaToken("-");
+            }
+            casaToken("const");
+        }
+    }
+
+    public static void Y(){
+        if(TL.getLex().equals("<-")){
+            casaToken("<-");
+            if(TL.getLex().equals("-")){
+                casaToken("-");
+            }
+            casaToken("const");
+        }
+        casaToken("[");
+        casaToken("const");
+        casaToken("]");
+    }
+
+    public static void C(){
+        if(TL.getLex().equals("id")){
+            casaToken("id");
+            casaToken("<-");
+            Exp();
+        }
+        else if(TL.getLex().equals("for")){
+            casaToken("For");
+            casaToken("id");
+            casaToken("<-");
+            Exp();
+            casaToken("to");
+            Exp();
+            if(TL.getLex().equals("step")){
+                casaToken("step");
+            }
+
+            casaToken("const");
+            casaToken("do");
+            if(TL.getLex().equals("begin")){
+                casaToken("begin");
+                while(!(TL.getLex().equals("end"))){
+                    C();
+                }
+                casaToken("end");
+            }
+            else{
+                while(TL.getLex().equals("id") || TL.getLex().equals("For") || TL.getLex().equals("if") || TL.getLex().equals(";") || TL.getLex().equals("readln") || TL.getLex().equals("write") || TL.getLex().equals("writeln")){
+                    C();
+                }
+            }
+        }
+        else if (TL.getLex().equals("if")){
+            casaToken("if");
+            Exp();
+            casaToken("then");
+            W();
+            casaToken("else");
+            W();
+        }
+        else if (TL.getLex().equals(";")){
+            casaToken(";");
+        }
+        else if (TL.getLex().equals("readln")){
+            casaToken("readln");
+            casaToken("(");
+            casaToken("id");
+            casaToken(")");
+            casaToken(";");
+        }
+        else if (TL.getLex().equals("write")){
+            casaToken("write");
+            casaToken("(");
+            Exp();
+            casaToken(",");
+            while(TL.getLex().equals("+") || TL.getLex().equals("-") || TL.getLex().equals("(") || TL.getLex().equals("not") || TL.getLex().equals("const") || TL.getLex().equals("id")){
+                Exp();
+                casaToken(",");
+            }
+            casaToken(")");
+            casaToken(";");
+        }
+        else if (TL.getLex().equals("writeln")){
+            casaToken("writeln");
+            casaToken("(");
+            Exp();
+            casaToken(",");
+            while(TL.getLex().equals("+") || TL.getLex().equals("-") || TL.getLex().equals("(") || TL.getLex().equals("not") || TL.getLex().equals("const") || TL.getLex().equals("id")){
+                Exp();
+                casaToken(",");
+            }
+            casaToken(")");
+            casaToken(";");
+        }
+    }
+
+    public static void W(){
+        if(TL.getLex().equals("begin")){
+            casaToken("begin");
+            while(!(TL.getLex().equals("end"))){
+                C();
+            }
+            casaToken("end");
+        }
+        else{
+            C();
+        }
+
+    }
+
+    public static void Exp(){
+        ExpS();
+        while(TL.getLex().equals("=") || TL.getLex().equals("<>") || TL.getLex().equals("<") || TL.getLex().equals(">") || TL.getLex().equals("<=") || TL.getLex().equals(">=")){
+            if(TL.getLex().equals("=")){
+                casaToken("=");
+            }
+            else if(TL.getLex().equals("<>")){
+                casaToken("<>");
+            }
+            else if(TL.getLex().equals("<")){
+                casaToken("<");
+            }
+            else if(TL.getLex().equals(">")){
+                casaToken(">");
+            }
+            else if(TL.getLex().equals("<=")){
+                casaToken("<=");
+            }
+            else if(TL.getLex().equals(">=")){
+                casaToken(">=");
+            }
+            else{
+                ExpS();
+            }
+        }
+    }
+    public static void ExpS(){
+        if(TL.getLex().equals("+")){
+            casaToken("+");
+        }
+        else if (TL.getLex().equals("-")){
+            casaToken("-");
+        }
+        else{
+            T();
+            while(TL.getLex().equals("+") || TL.getLex().equals("-") || TL.getLex().equals("or")){
+                if(TL.getLex().equals("+")){
+                    casaToken("+");
+                }
+                else if(TL.getLex().equals("-")){
+                    casaToken("-");
+                }
+                else if(TL.getLex().equals("or")){
+                    casaToken("-");
+                }
+                else{
+                    T();
+                }
+            }
+        }
+    }
+    public static void T(){
+        F();
+        while(TL.getLex().equals("*") || TL.getLex().equals("/") || TL.getLex().equals("and") || TL.getLex().equals("%")){
+            if(TL.getLex().equals("*")){
+                casaToken("*");
+            }else if (TL.getLex().equals("/")){
+                casaToken("/");
+            }else if (TL.getLex().equals("and")){
+                casaToken("and");
+            }else if (TL.getLex().equals("%")){
+                casaToken("%");
+            }else{
+                F();
+            }
+        }
+    }
+
+    public static void F(){
+        if(TL.getLex().equals("(")){
+            casaToken("(");
+            Exp();
+            casaToken(")");
+        }else if(TL.getLex().equals("not")){
+            casaToken("not");
+            F();
+        }else if(TL.getLex().equals("const")){
+            casaToken("const");
+        }else if(TL.getLex().equals("id")){
+            casaToken("id");
+            if(TL.getLex().equals("[")){
+                casaToken("[");
+                Exp();
+                casaToken("]");
+            }
+        }
     }
 
     // Program Principal -- chama tudo ai dentro
@@ -419,6 +659,13 @@ public class Compiler {
         }
         // Daqui pra baixo e putaria do David e do leo
         //S();
+        //int x = 0;
+        //while (x < 200){
+            token = analisadorLexico();
+        //    x++;
+        //}
+        // Daqui pra baixo e putaria do David e do leo
+        S();
         if(interator < lexema.length()){
             System.out.println("Fim de arquivo não esperado!");
         }
