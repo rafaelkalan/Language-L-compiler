@@ -43,13 +43,14 @@ public class Compiler {
     private static Scanner sc = new Scanner(System.in); 
 
     // Global variables  
-    private static String lexema = "";
+    private static String lexema = readFile();
     // used to get positions on the symbol table
     private static int index = 0;
     // used to travel navigate on the string
     private static int interator = 0;
+    // global token string
+    private static String token;
     public static boolean error = false;
-
 
     // Conferir os simbolos abaixo com nossa tabela de simbolos
     private static char[] letter = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','Y','V','W','X','Y','Z'};
@@ -59,7 +60,16 @@ public class Compiler {
     
     // Creation of symbol table 
     private static Map<Integer,TokenLex> alphabet = new HashMap<Integer,TokenLex>();	 																		
-    static String[] A = {"final", "int", "char", "for", "if", "else", "and", "or", "not", "to", "begin", "end", "then", "readln", "step", "write", "writeln", "do", "<-", "(", ")", "<", ">", "<>", ">=", "=<", ",", "+", "-", "*", "/", ";", "%", "[", "]"};
+    static String[] reservedWords = {"final", "int", "char", "for", "if", "else", "and", "or", "not", "to", "begin", "end", "then", "readln", "step", "write", "writeln", "do", "<-", "(", ")", "<", ">", "<>", ">=", "=<", ",", "+", "-", "*", "/", ";", "%", "[", "]"};
+    
+    public static String readFile() {
+        String result = "";
+        //Scanner sc = new Scanner(System.in);
+        while (sc.hasNext()){
+            result = result + sc.nextLine().toLowerCase()+" ";
+        }
+        return result;
+    }
     
     public static boolean contains(char [] arr, char c){
         boolean result = false;
@@ -67,12 +77,32 @@ public class Compiler {
             if(arr[i] == c){
                 result = true;
             }
-            return result;
         }
+        return result;
     }
 
     public static String returnIt(String lexema, int index){
         return lexema.substring(index, lexema.length());
+    }
+
+    public static boolean containsTok(String s, Map<Integer,TokenLex> m) {
+        boolean result = false;
+        for (Map.Entry<Integer, TokenLex> entry : m.entrySet()){
+            if(s.equals(entry.getValue().getLex())){
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    public static String getToken(String s, Map<Integer,TokenLex> m){
+        String result = null;
+        for (Map.Entry<Integer, TokenLex> entry : m.entrySet()){
+            if(s.equals(entry.getValue().getLex())){
+                result = entry.getValue().getToken();
+            }
+        }
+        return result;
     }
 
     // TODO base on each state of the automat
@@ -82,7 +112,7 @@ public class Compiler {
         String tmpLexema = "";
         int state = 0;
         
-        for (;interator < lexema.length();){
+        for (;interator < lexema.length();) {
             char c = lexema.charAt(interator);
             switch (state) {
                 // Create every case equals of the automato que vc criou fdp fazendo os if e etc pra cada um e separando  (sendo cada bolinha um case)
@@ -120,9 +150,12 @@ public class Compiler {
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 10;
-                    } else if ( c == ' ' || c == 'n') {
+                    } else if ( c == ' ' || c == '\n') {
                         interator++;
                         state = 0;
+                    } else if(c == '\"'){
+                        interator++;
+                        state = 13;
                     } else {
                         // Error
                         state = 666;
@@ -133,11 +166,7 @@ public class Compiler {
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 1;
-                    } else if( c == '$'){
-                        interator++;
-                        tmpLexema = lexema+c;
-                        state = 99;
-                    }else {
+                    } else {
                         // novo lexama e formado
                         lexema = returnIt(lexema, index);
                         // reseta posição
@@ -157,8 +186,8 @@ public class Compiler {
                         state = 2;
                     } else {
                         // aceitação
+                        lexema = returnIt(lexema, interator);
                         interator = 0;
-                        lexema = returnIt(lexema, index);
                         state = 99;
                     }
                     break;
@@ -223,10 +252,10 @@ public class Compiler {
                     if (c == '*') {
                         interator++;
                         state = 8;
-                    } else if ( c != '*'){
+                    } else {
                         // criar dividir
-                        interator++;
                         lexema = returnIt(lexema, index);
+                        interator = 0;
                         state = 99;
                     }
                     break;
@@ -268,24 +297,42 @@ public class Compiler {
                     break;
                 case 12:
                     break;
+                case 13:
+                    if (c != '\"') {
+                        tmpLexema = tmpLexema+c;
+                        interator++;
+                        state = 13;
+                    } else {
+                        tmpLexema = tmpLexema+"$";
+                        interator++;
+                        lexema = returnIt(lexema, interator);
+                        state = 99;
+                    }
+                    break;
                 case 99:
                     if(!alphabet.containsKey(tmpLexema)){
                         tl.setLex((tmpLexema));
                         alphabet.put(index,tl);
                         index++;
                     } else {
-                        // check this
-                        tl.setToken((String)alphabet.get(tmpLexema));
+                        tl.setToken(getToken(tmpLexema, alphabet));
                     }
+                    return tl.getToken();
+                case 666:
+                    interator = lexema.length();
+                    System.out.println("Caractere inválido " + "( " + c + " )" );
                     break;
-                default:
-                    System.out.println("FUDEUUUUUUUUUUUUUUUUU");
             }
-            return tmpLexema;
         }
+        if(state != 0 && state != 99 && state != 666 ){
+            System.out.println("Fim de arquivo não esperado");
+            error = true;
+        }
+        return tl.getToken();
     }
     
     //TODO
+    // Lembrar de usar a variavel error aqui para parar o programa caso fim de arquivo não esperado
     public static void casaToken(String token_expected) {
         // toke esperado avalia e pega proximo
         // senao error
@@ -294,6 +341,19 @@ public class Compiler {
 
     // Program Principal -- chama tudo ai dentro
     public static void main (String [] args) {
+
+        for(String word: reservedWords){
+            TokenLex tl = new TokenLex(word, word);
+            alphabet.put(index, tl);
+            index++;
+        }
+
+        token = analisadorLexico();
+        // Daqui pra baixo e putaria do David e do leo
+        //S();
+        if(interator < lexema.length()){
+            System.out.println("Fim de arquivo não esperado!");
+        }
         
     }
 
