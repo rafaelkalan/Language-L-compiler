@@ -105,7 +105,7 @@ public class Compiler {
         return result;
     }
  
-    // TODO base on each state of the automat
+    // TODO check erros
     public static TokenLex analisadorLexico(){
        
         TokenLex tl = new TokenLex();
@@ -147,14 +147,13 @@ public class Compiler {
                         tmpLexema = tmpLexema+c;
                         state = 4;
                     } else if ( c == '>') {
-                        //System.out.println(" >> " + c + " << " + " -- " + state);
+                       // System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
                         tmpLexema = tmpLexema+c;
                         state = 5;
                     } else if ( c == '/') {
                         //System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
-                        // duvida pro be
                         tmpLexema = tmpLexema+c;
                         state = 7;
                     } else if ( contains(symbols, c)) {
@@ -190,7 +189,7 @@ public class Compiler {
                         tmpLexema = tmpLexema+c;
                         state = 1;
                     } else {
-                       // System.out.println(" >> " + c + " << " + " -- " + state);
+                        //System.out.println(" >> " + c + " << " + " -- " + state);
                         //System.out.println("--------------------" + tmpLexema +"---------------");
                         // novo lexama e formado
                         lexema = returnIt(lexema, interator);
@@ -287,7 +286,7 @@ public class Compiler {
                         interator++;
                         state = 8;
                     } else {
-                        //System.out.println(" >> " + c + " << " + " -- " + state);
+                        System.out.println(" >> " + c + " << " + " -- " + state);
                         // criar dividir
                         lexema = returnIt(lexema, interator);
                         interator = 0;
@@ -314,8 +313,6 @@ public class Compiler {
                         tmpLexema = "";
                         state = 0;
                     } else {
-                        //System.out.println(" >> " + c + " << " + " -- " + state);
-                        interator++;
                         state = 8;
                     }
                     break;
@@ -354,14 +351,14 @@ public class Compiler {
                         interator++;
                         state = 13;
                     } else if (c == '\"' || c == '$' || c == '\n') {
-                        //System.out.println(" >> " + c + " << " + " -- " + state);
+                       //System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+"$";
                         interator++;
                         state = 99;
                     }
                     break;
                 case 14:
-                    if (c == 'h'){
+                    if (c == 'h'){ 
                         //System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+c;
                         // duvida
@@ -376,7 +373,6 @@ public class Compiler {
                 case 99:
                     if(!(containsTok(tmpLexema,alphabet))){
                         //if(!alphabet.containsKey(tmpLexema)){
-                       
                         tl.setLex((tmpLexema));
                         alphabet.put(index,tl);
                         //System.out.println(" >> " + tl.getLex() + " << " + " -- " + tl.getToken());
@@ -399,9 +395,7 @@ public class Compiler {
         }
         return tl;
     }
-   
-    //TODO
-    // Lembrar de usar a variavel error aqui para parar o programa caso fim de arquivo não esperado
+    // Estado de error foi alterado verificar para os outros testes
     public static void casaToken(String token_expected) {
         // toke esperado avalia e pega proximo
         //System.out.println(TL.getToken() + "----lex------");
@@ -413,8 +407,11 @@ public class Compiler {
                 //System.out.println("fudeu!!");
                 System.exit(0);
             }
-        }else{
-            System.out.println("ERRO: Token nao esperado ("+TL.getToken()+")");
+        } else if( (containsTok(TL.getToken(), alphabet)) && !(TL.getToken().equals(token_expected)) ){
+            System.out.println("ERRO: Token não esperado ("+TL.getToken()+")");
+            System.exit(0);
+        } else {
+            System.out.println("ERRO: Lexema não esperado ("+TL.getToken()+")");
             System.exit(0);
         }
  
@@ -598,6 +595,7 @@ public class Compiler {
             ExpS();
         }
     }
+
     public static void ExpS(){
         if(TL.getToken().equals("+")){
             casaToken("+");
@@ -624,6 +622,7 @@ public class Compiler {
             }
         }
     }
+
     public static void T(){
         //System.out.println("T");
         F();
@@ -661,7 +660,9 @@ public class Compiler {
                 casaToken("[");
                 Exp();
                 casaToken("]");
-            }
+            } 
+        } else {
+            casaToken("not");//tem que melhorar
         }
     }
  
