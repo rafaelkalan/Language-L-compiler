@@ -1,8 +1,8 @@
-# Language-L-compiler
+# Language L Compiler Project
 
 The purpose of the practical work is to develop a complete compiler that translates programs written in source language "L" into a subset of ASSEMBLY of the 80x86 family. Both languages ​​will be described during the semester. At the end of the work, the compiler must produce a text file that can be converted into machine language by the MASM editor and executed successfully on an actual processor. In case the program contains errors, the compiler should report the first error and finish the compilation process. The format of the error messages will be specified later and should be strictly observed. The compiler executable program should be called "LC" and receive 2 command-line parameters (arguments): the full name of the source program to be compiled (extension .L) and the full name of the ASSEMBLY program (extension .ASM) to be generated
 
-## Language Definition
+## Language L Definition
 
 The "L" language is a simplified imperative language, with characteristics of C and Pascal. The language offers treatment for two explicit basic types: char and integer, in addition to the logical type that is implicit. The char type is a scalar that varies from 0 to 255, and can be written in alphanumeric or hexadecimal format. Constants in hexadecimal format are of the form 0DDh, where DD is a hexadecimal number. Constants in alphanumeric format are of the form 'c' where c is a printable character. The integer type is a scalar ranging from -32768 to 32767, occupying 2 bytes. In addition to the basic types, the language allows the definition of unidimensional characters and integer vectors, up to 4kbytes. A string is a vector of characters that when stored in memory has its useful content terminated by the character '$'. Constants representing strings are delimited by quotation marks and should not contain quotation marks, line breaks, or $. However, these characters are allowed in the character vectors. In this way, vectors and strings are compatible with each other, being the responsibility of the programmer to control their contents and sizes. logical type assumes values ​​0 (false) and 1 (true), occupying one byte of memory
 
@@ -26,10 +26,6 @@ java Compiler < t1.l
 
 * [Java](https://docs.oracle.com/javase/7/docs/api/) - Language used on the development of this project
 * [Assembly](https://en.wikipedia.org/wiki/Assembly_language) - Asssembly
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
