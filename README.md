@@ -33,9 +33,9 @@ We use [Git](https://git-scm.com/) for versioning. For the versions available, s
 
 ## Authors
 
-* **Rafael Oliveira Mendes Lima** - *Initial work* - [Rafael Oliveira](https://github.com/PurpleBooth)
-* **Matheus David Lauar** - *Initial work* - [Matheus David](https://github.com/MatShouldPutStuffHere)
-* **Leonardo Machado Decina** - *Initial work* - [Leonardo Decina](https://github.com/LeonardoDecina)
+* **Rafael Oliveira Mendes Lima** - *Project development* - [Rafael Oliveira](https://github.com/PurpleBooth)
+* **Matheus David Lauar** - *Project development* - [Matheus David](https://github.com/MatShouldPutStuffHere)
+* **Leonardo Machado Decina** - *Project development* - [Leonardo Decina](https://github.com/LeonardoDecina)
 
 
 See also the list of [contributors](https://github.com/rafaelkalan/Language-L-compiler/graphs/contributors) who participated in this project.
