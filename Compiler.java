@@ -280,7 +280,7 @@ public class Compiler {
                     }
                     break;
                 case 7:
-                // comentario ou dividir
+                     // comentario ou dividir
                     if (c == '*') {
                         //System.out.println(" >> " + c + " << " + " -- " + state);
                         interator++;
@@ -345,14 +345,17 @@ public class Compiler {
                     }
                     break;
                 case 13:
-                    if (contains(letter, c) || contains(digit, c) || contains(symbols, c) || c == ' ') {
+                    // Verificar montagem da String
+                    if (c == '$' || c == '\n'){
+                        state = 666;
+                    }else if(contains(letter, c) || contains(digit, c) || contains(symbols, c) || c == ' ') {
                         //System.out.println(" >> " + c + " << " + " -- " + state);
                         tmpLexema = tmpLexema+c;
                         interator++;
                         state = 13;
-                    } else if (c == '\"' || c == '$' || c == '\n') {
+                    } else if (c == '\"') {
                        //System.out.println(" >> " + c + " << " + " -- " + state);
-                        tmpLexema = tmpLexema+"$";
+                        tmpLexema = tmpLexema + "$";
                         interator++;
                         state = 99;
                     }
