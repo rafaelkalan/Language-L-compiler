@@ -38,29 +38,33 @@ class TokenLex {
 public class Compiler {
    
     // Objects
-    private static TokenLex TL = new TokenLex();
-    private static Scanner sc = new Scanner(System.in);
+        private static TokenLex TL = new TokenLex();
+        private static Scanner sc = new Scanner(System.in);
  
+    
     // Global variables  
-    private static String lexema = readFile();
+     private static String lexema = readFile();
+    
     // used to get positions on the symbol table
-    private static int index = 0;
+        private static int index = 0;
+    
     // used to travel navigate on the string
-    private static int interator = 0;
+        private static int interator = 0;
+    
     // global token string
-    private static String token;
-    public static boolean error = false;
+        private static String token;
+        public static boolean error = false;
  
     // Conferir os simbolos abaixo com nossa tabela de simbolos
-    private static char[] letter = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','Y','V','W','X','Y','Z'};
-    private static char[] digit = {'0','1','2','3','4','5','6','7','8','9'};                                                                                                                     
-    private static char[] hex   = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};                                                                                             
-    private static char[] symbols   = { '=','(',')',',','+','-','*',';','{','}','[',']','%',':','&','^','@','!','?','>','<','\''};
+        private static char[] letter = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','Y','V','W','X','Y','Z'};
+        private static char[] digit = {'0','1','2','3','4','5','6','7','8','9'};                                                                                                                     
+        private static char[] hex   = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};                                                                                             
+        private static char[] symbols   = { '=','(',')',',','+','-','*',';','{','}','[',']','%',':','&','^','@','!','?','>','<','\''};
    
     // Creation of symbol table
-    private static Map<Integer,TokenLex> alphabet = new HashMap<Integer,TokenLex>();                                                                           
-    static String[] reservedWords = {"final", "int", "char", "for", "if", "else", "and", "or", "not", "to", "begin", "end", "then", "readln", "step", "write", "writeln", "do", "<-", "(", ")", "<", ">", "<>", ">=", "=<", ",", "+", "-", "*", "/", ";", "%", "[", "]", "="};
-   
+        private static Map<Integer,TokenLex> alphabet = new HashMap<Integer,TokenLex>();                                                                           
+        static String[] reservedWords = {"final", "int", "char", "for", "if", "else", "and", "or", "not", "to", "begin", "end", "then", "readln", "step", "write", "writeln", "do", "<-", "(", ")", "<", ">", "<>", ">=", "=<", ",", "+", "-", "*", "/", ";", "%", "[", "]", "="};
+    
     public static String readFile() {
         String result = "";
         //Scanner sc = new Scanner(System.in);
@@ -398,6 +402,7 @@ public class Compiler {
         }
         return tl;
     }
+    
     // Estado de error foi alterado verificar para os outros testes
     public static void casaToken(String token_expected) {
         // toke esperado avalia e pega proximo
@@ -417,7 +422,6 @@ public class Compiler {
             System.out.println("ERRO: Lexema não esperado ("+TL.getToken()+")");
             System.exit(0);
         }
- 
     }
  
     public static void S (){
@@ -473,9 +477,9 @@ public class Compiler {
             }
             casaToken("const");
         }else if(TL.getToken().equals("[")){
-        casaToken("[");
-        casaToken("const");
-        casaToken("]");
+         casaToken("[");
+         casaToken("const");
+         casaToken("]");
         }
     }
  
