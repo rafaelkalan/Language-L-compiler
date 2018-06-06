@@ -4,28 +4,31 @@ class TokenLex {
  
     String Token = "";
     String Lex = "";
-	String Type = "";
-	String Classe = "";
-	String Size = "";
-	String Value = "";
+    String Type = "";
+    String Classe = "";
+    String Size = "";
+    String Value = "";
+	String Address = "";
  
     public TokenLex(){
         // contructor vazio
         this.Token = "";
         this.Lex = "";
-		this.Type = "";
+        this.Type = "";
 		this.Classe = "";
-		this.Size = "";
+        this.Size = "";
 		this.Value = "";
+		this.Address = "";
     }
  
-    public TokenLex(String token, String lex, String type, String classe, String size, String  value) {
+    public TokenLex(String token, String lex, String type, String classe, String size, String  value, String address) {
         this.Token = token;
         this.Lex = lex;
-		this.Type = type;
-		this.Classe = classe;
+        this.Type = type;
+        this.Classe = classe;
 		this.Size = size;
-		this.Value = value;
+        this.Value = value;
+		this.Address = address;
     }
  
     //Getter & Setters
@@ -52,6 +55,10 @@ class TokenLex {
 	public String getValue(){
         return this.Value;
     }
+	
+	public String getAddress(){
+        return this.Address;
+    }
  
     public void setToken(String token){
         this.Token = token;
@@ -76,16 +83,48 @@ class TokenLex {
 	public void setValue(String value){
         this.Value = value;
 	}
+	
+	public void setAddress(String address){
+        this.Address = address;
+	}
    
 }
+
+class Code {
+    
+    
+    
+    public static int CalculateSize (){
+        int size = 0;
+
+        switch(type){
+            case "int":
+			    size = 2;
+			    break;
+		    case REGISTER_TYPE_BYTE:
+			    size = 1;
+			    break;
+		    case "string":
+			    if (value != "") {
+				    size = value.length() -1;
+			    } else	{
+				    size = 256;
+			    }
+			    break;
+        }
+        return size;
+    }
+}
+
  
 public class Compiler {
    
     // Objects
     private static TokenLex TL = new TokenLex();
     private static Scanner sc = new Scanner(System.in);
-	private static TokenLex tempTok = new TokenLex();
-	private static TokenLex tempTok2 = new TokenLex();
+    private static TokenLex tempTok = new TokenLex();   
+    private static TokenLex tempTok2 = new TokenLex();
+	private static String MASM = "";
  
     // Global variables  
     private static String lexema = readFile();
@@ -157,7 +196,7 @@ public class Compiler {
         return result;
     }
 	
-	public static TokenLex searchToken(String s, Map<Integer,TokenLex> m){
+    public static TokenLex searchToken(String s, Map<Integer,TokenLex> m){
         TokenLex result = new TokenLex();
         for (Map.Entry<Integer, TokenLex> entry : m.entrySet()){
             if(s.equals(entry.getValue().getLex())){
@@ -167,8 +206,7 @@ public class Compiler {
         return result;
     }
 	
-	public static boolean isNumeric(String str)  
-	{  
+    public static boolean isNumeric(String str) {  
 		try{  
 			double d = Double.parseDouble(str);  
 		}  
@@ -176,7 +214,7 @@ public class Compiler {
 			return false;  
 		}  
 		return true;  
-	}
+    }
 	
 	public static void printAlphabet(){
         for(Object objname:alphabet.keySet()) {
@@ -184,7 +222,8 @@ public class Compiler {
             System.out.println("Token -> " + alphabet.get(objname).getToken() + "Lexema ->  " + (alphabet.get(objname).getLex()));
           }
     }
- 
+	
+
     // TODO base on each state of the automat
     public static TokenLex analisadorLexico(){
        
@@ -463,7 +502,7 @@ public class Compiler {
                         index++;
                     } else {
                         //System.out.println(" >> " + tmpLexema + " << " + " -- " + state);
-                        tl.setToken(getToken(tmpLexema, alphabet));
+                        tl = searchToken(tmpLexema, alphabet);
                     }
                     return tl;
                 case 666:
@@ -484,8 +523,9 @@ public class Compiler {
     // Lembrar de usar a variavel error aqui para parar o programa caso fim de arquivo não esperado
     public static void casaToken(String token_expected) {
         // toke esperado avalia e pega proximo
-        // System.out.print(TL.getToken() + "  ----lex------:");
-        // System.out.println(TL.getToken() + "  -----token----:");
+        //System.out.println(TL.getLex() + "  ----lex------:");
+        //System.out.println(">"+TL.getToken()+"<  -----token----:");
+        //System.out.println(token_expected);
         if(TL.getToken().equals(token_expected)) {
             TL = analisadorLexico();
             //System.out.println("TL:"+TL.getLex() + "----lex------"+TL.getToken() + "-----token----");
@@ -504,9 +544,15 @@ public class Compiler {
     public static void S (){
         while(TL.getToken().equals("int") || TL.getToken().equals("char") || TL.getToken().equals("final")){
             D();
+            //System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
+            //printAlphabet();
         }while(interator < lexema.length()){
+            //printAlphabet();
+            //System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
+            
         //while(TL.getToken().equals("id") || TL.getToken().equals("For") || TL.getToken().equals("if") || TL.getToken().equals(";") || TL.getToken().equals("readln") || TL.getToken().equals("write") || TL.getToken().equals("writeln")){
             C();
+            //System.out.println("Fim de compila��o");
         }
  
     }
@@ -514,26 +560,21 @@ public class Compiler {
     public static void D(){
         if(TL.getToken().equals("int")){
             casaToken("int");
-			tempTok = searchToken(TL.getLex(), alphabet);
-			tempTok.setClasse("var");
-			tempTok.setType("int");
-			//System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
-            casaToken("id");		
-			
+            tempTok = searchToken(TL.getLex(), alphabet);
+            tempTok.setClasse("var");
+            tempTok.setType("int");
+            casaToken("id");			
             Y();
-			
-            while(TL.getToken().equals(",")){
+            while((TL.getToken()).equals(",")){
                 casaToken(",");
-				tempTok = searchToken(TL.getLex(), alphabet);
-				tempTok.setClasse("var");
-				tempTok.setType("int");
-                casaToken("id");
-				
+		tempTok = searchToken(TL.getLex(), alphabet);
+                tempTok.setClasse("var");
+		tempTok.setType("int");
+                //System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
+                casaToken("id");		
                 Y();
             }
-            casaToken(";");
-			
-			
+            casaToken(";");		
         }
         else if(TL.getToken().equals("char")){
             casaToken("char");
@@ -553,7 +594,7 @@ public class Compiler {
                 Y();
             }
             casaToken(";");
-			//System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
+            //System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
         }
         else{
             casaToken("final");
@@ -575,133 +616,71 @@ public class Compiler {
     public static void Y(){
         if(TL.getToken().equals("<-")){
             casaToken("<-");
+        
             if(TL.getToken().equals("-")){
                 casaToken("-");
             }
-			if(isNumeric(TL.getLex())){
-				TL.setType("int");
-			}else if(TL.getLex().length() == 1){
-				TL.setType("char");
-			}else{
-				TL.setType("String");
-			}
-			tempTok2 = searchToken(TL.getLex(), alphabet);
-			
-			if(tempTok.getType().equals(tempTok2.getType())){
-				tempTok.setValue(tempTok2.getLex());
-			}
-			
-            casaToken("const");
+            if(isNumeric(TL.getLex())){
+                TL.setType("int");
+            }else if(TL.getLex().length() == 1){
+                TL.setType("char");
+            }else{
+                TL.setType("String");
+            }
+            tempTok2 = searchToken(TL.getLex(), alphabet);
+            if(tempTok.getType().equals(tempTok2.getType())){
+                tempTok.setValue(tempTok2.getLex());
+            }
+	    casaToken("const");
+        }else if(TL.getToken().equals("const")){
+            if(TL.getToken().equals("-")){
+                casaToken("-");
+            }
+            if(isNumeric(TL.getLex())){
+                TL.setType("int");
+            }else if(TL.getLex().length() == 1){
+                TL.setType("char");
+            }else{
+                TL.setType("String");
+            }
+            tempTok2 = searchToken(TL.getLex(), alphabet);
+            if(tempTok.getType().equals(tempTok2.getType())){
+                tempTok.setValue(tempTok2.getLex());
+            }
+	    casaToken("const");
         }else if(TL.getToken().equals("[")){
-        casaToken("[");
+            casaToken("[");
+            tempTok.setSize(TL.getLex());
+            if(isNumeric(TL.getLex())){
 		tempTok.setSize(TL.getLex());
-		if(isNumeric(TL.getLex())){
-			tempTok.setSize(TL.getLex());
-		}else{
-			System.out.println("Error : Tipos incompatíveis.");
-		}
-        casaToken("const");
-        casaToken("]");
+            }else{
+		System.out.println("Error : Tipos incompatíveis.");
+            }
+            casaToken("const");
+            casaToken("]");
         }
+        //printAlphabet();
     }
- 
-    // public static void C(){
-        // if(TL.getToken().equals("id")){
-            // casaToken("id");
-            // casaToken("<-");
-            // Exp();
-            // casaToken(";");
-        // }
-        // else if(TL.getToken().equals("for")){
-            // casaToken("for");
-            // casaToken("id");
-            // casaToken("<-");
-            // Exp();
-            // casaToken("to");
-            // Exp();
-            // if(TL.getToken().equals("step")){
-                // casaToken("step");
-                // casaToken("const");
-            // }
-            // casaToken("do");
-            // if(TL.getToken().equals("begin")){
-                // casaToken("begin");
-                // while(!(TL.getToken().equals("end"))){
-                    // C();
-                // }
-                // casaToken("end");
-            // }
-            // else{
-                // while(TL.getToken().equals("id") || TL.getToken().equals("for") || TL.getToken().equals("if") || TL.getToken().equals(";") || TL.getToken().equals("readln") || TL.getToken().equals("write") || TL.getToken().equals("writeln")){
-                    // C();
-                // }
-            // }
-        // }
-        // else if (TL.getToken().equals("if")){
-            // casaToken("if");
-            // Exp();
-            // casaToken("then");
-            // W();
-            // casaToken("else");
-            // W();
-        // }
-        // else if (TL.getToken().equals(";")){
-            // casaToken(";");
-        // }
-        // else if (TL.getToken().equals("readln")){
-            // casaToken("readln");
-            // casaToken("(");
-            // casaToken("id");
-            // if(TL.getToken().equals("[")){
-                // casaToken("[");
-                // Exp();
-                // casaToken("]");
-            // }
-            // casaToken(")");
-            // casaToken(";");
-        // }
-        // else if (TL.getToken().equals("write")){
-            // casaToken("write");
-            // casaToken("(");
-            // Exp();
-            // while(TL.getToken().equals(",")){
-                // casaToken(",");
-                // Exp();
-            // }
-            // casaToken(")");
-            // casaToken(";");
-        // }
-        // else if (TL.getToken().equals("writeln")){
-            // casaToken("writeln");
-            // casaToken("(");
-            // Exp();
-            // while(TL.getToken().equals(",")){
-                // casaToken(",");
-                // Exp();
-            // }
-            // casaToken(")");
-            // casaToken(";");
-        // }
-    // }
- 
-	public static void C(){
+
+    public static void C(){
         if(TL.getToken().equals("id")){
-			//System.out.println("entrou C");
-			tempTok = searchToken(TL.getLex(), alphabet);
-			System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
-            casaToken("id");
-			
-            //idT = TL.getType();
-            if (tempTok.getClasse() != ""){
+            //System.out.println("entrou C");
+            tempTok = searchToken("p", alphabet);
+            //System.out.println("TL:"+tempTok.getLex() + "<-lex\n"+tempTok.getToken() + "<-token\n"+tempTok.getClasse()+"<-Classe\n"+tempTok.getType()+"<-Type");  
+            //System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
+            casaToken("id");	
+            //System.out.println("Loop ?");
+            if ((tempTok.getClasse().equals("var")) || tempTok.getClasse().equals("const")){
+            //System.out.println("Loop ?");
             casaToken("<-");
-            Exp();
-                if((tempTok.getType() == TL.getType()) && (tempTok.getClasse().equals("var"))){
-					System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
+            String cid = Exp();
+                if((tempTok.getType().equals(cid)) && (tempTok.getClasse().equals("var"))){
+					//System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
 					tempTok.setValue(tempTok2.getLex());
 					//fazer atribuicao
                    // id = Exp(); Assembly
                 }else{
-                    System.out.println("Error : Tipos incompatíveis.");
+                    System.out.println("Error : Tipos incompatíveis.  C id");
                 }
             }else{
                 System.out.println( "Error : Identificador não declarado [" + tempTok.getToken() + "]");
@@ -710,29 +689,36 @@ public class Compiler {
         }
         else if(TL.getToken().equals("for")){
             casaToken("for");
-			tempTok = searchToken(TL.getLex(), alphabet);
-            casaToken("id");
-            //idT = TL.getType();
-			//System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
-          if(tempTok.getClasse() != ""){
+            tempTok = searchToken("p", alphabet);
+            //System.out.println("TL:"+tempTok.getLex() + "<-lex\n"+tempTok.getToken() + "<-token\n"+tempTok.getClasse()+"<-Classe\n"+tempTok.getType()+"<-Type");  
+            //casaToken("");
+               //System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
+               
+               casaToken("id");
+               
+               //System.out.println("TL:"+TL.getLex() + "<-lex\n"+TL.getToken() + "<-token\n"+TL.getClasse()+"<-Classe\n"+TL.getType()+"<-Type");
+            if(tempTok.getClasse() != ""){
 			
             casaToken("<-");
 			
-            Exp();
+            String cfor1 = Exp();
 			//verificacao tipo, id e exp 
-			if(tempTok.getType() == tempTok2.getType()){
+                        
+                        System.out.println(tempTok.getType());
+                        System.out.println(cfor1);
+			if(tempTok.getType().equals(cfor1)){
 				tempTok.setValue(tempTok2.getLex());
 			}else{
-				System.out.println("Error : Tipos incompatíveis.");
+				System.out.println("Error : Tipos incompatíveis. no for");
 			}
             //String expT = TL.getType();
             casaToken("to");
-            Exp();
+            String cfor2 = Exp();
 			
-			if(tempTok.getType() == tempTok2.getType()){
+			if(tempTok.getType().equals(cfor2)){
 				//geracao de codigo 
 			}else{
-				System.out.println("Error : Tipos incompatíveis.");	
+				System.out.println("Error : Tipos incompatíveis. no for");	
 			}
             //regra 24 FIM
 			//geração de codigo, comparar se exp > exp1 se não erro
@@ -761,15 +747,23 @@ public class Compiler {
 		//if geracao
         else if (TL.getToken().equals("if")){
             casaToken("if");
-            Exp();
-            if(TL.getType().equals("boolean")){
-                System.out.println("Error : Tipos Incimpatíveis.");
+            //System.out.println(Exp());
+            String cif = Exp();
+            //System.out.println(cif);
+            //voltar pra boolean 1 
+            if(cif.equals("int")){
+                System.out.println("if primeiro");
+                //gera��o de codigo entra if
+            }else if (cif.equals("0")){
+                System.out.println("if second");
+                //gera��o de codigo pula if
             }else{
+               System.out.println("Error : Tipos Incompat�veis. if");
+            }
             casaToken("then");
             W();
             casaToken("else");
             W();
-            }
         }
         else if (TL.getToken().equals(";")){
             casaToken(";");
@@ -777,15 +771,18 @@ public class Compiler {
         else if (TL.getToken().equals("readln")){
             casaToken("readln");
             casaToken("(");
-			tempTok = searchToken(TL.getLex(), alphabet);
+            tempTok = searchToken(TL.getLex(), alphabet);
+            //System.out.println("TO AQUI PORRA    "+tempTok.getLex() + "TL.GETLEX" + TL.getLex());
+            System.out.println("Entrei");
             casaToken("id");
+            System.out.println("Casei o id");
             if(tempTok.getClasse() != ""){
              if(TL.getToken().equals("[")){
                 casaToken("[");
                 Exp();
                 casaToken("]");
-				//geracao de codigo
-				//manipulacao vetor elemento a elemento(INT)	
+		//geracao de codigo
+		//manipulacao vetor elemento a elemento(INT)	
              }
              casaToken(")");
              casaToken(";");
@@ -815,7 +812,7 @@ public class Compiler {
             casaToken(")");
             casaToken(";");
         }
-}
+    }
  
     public static void W(){
         if(TL.getToken().equals("begin")){
@@ -831,108 +828,154 @@ public class Compiler {
  
     }
  
-    public static void Exp(){
+    public static String Exp(){
         //System.out.println("Exp");
-        ExpS();
+        String typeExp = ExpS();
+        String typeExp2;
+                
         while(TL.getToken().equals("==") || TL.getToken().equals("<>") || TL.getToken().equals("<") || TL.getToken().equals(">") || TL.getToken().equals("<=") || TL.getToken().equals(">=")){
-            if(TL.getToken().equals("==")){
-                casaToken("==");
-            }
-            else if(TL.getToken().equals("<>")){
-                casaToken("<>");
-            }
-            else if(TL.getToken().equals("<")){
+            if(typeExp.equals("int") && TL.getToken().equals("<")){
                 casaToken("<");
+                // gera��o de codigo
             }
-            else if(TL.getToken().equals(">")){
+            else if(typeExp.equals("int") && TL.getToken().equals(">")){
                 casaToken(">");
+                //gera��o de codigo
+                //typeExp = "1";
             }
-            else if(TL.getToken().equals("<=")){
+            else if(typeExp.equals("int") && TL.getToken().equals("<=")){
                 casaToken("<=");
+                //gera��o de codigo
             }
-            else if(TL.getToken().equals(">=")){
+            else if(typeExp.equals("int") && TL.getToken().equals(">=")){
                 casaToken(">=");
+                //gera��o de codigo
+            } 
+            else if(TL.getToken().equals("==")){
+                casaToken("==");
+                //gera��o de codigo
+            } else if(TL.getToken().equals("<>")){
+                casaToken("<>");
+                //gera��o de codigo
             }
-           
-            ExpS();
+            typeExp2 = ExpS();
+            //System.out.println("exp1 = "+typeExp + " exp2 = " + typeExp2);
+            if(typeExp.equals(typeExp2)){
+                //gera��o de c�digo
+            }else{
+                System.out.println("Erro: Tipos Incompat�veis.");
+            }    
         }
+        return typeExp;
     }
-    public static void ExpS(){
+    
+    public static String ExpS(){
+        String typeExps, typeExps2;
         if(TL.getToken().equals("+")){
             casaToken("+");
-        }
-        else if (TL.getToken().equals("-")){
+        } else if (TL.getToken().equals("-")){
             casaToken("-");
-        }
-        else{
+        }          
            //System.out.println("ExpS");
-            T();
+        typeExps = T();  
             while(TL.getToken().equals("+") || TL.getToken().equals("-") || TL.getToken().equals("or")){
-                if(TL.getToken().equals("+")){
+                // verificar se sting aceita concatena�ao
+                if((typeExps.equals("int") || typeExps.equals("string")) && TL.getToken().equals("+")){
                     casaToken("+");
                 }
-                else if(TL.getToken().equals("-")){
+                else if(typeExps.equals("int") && TL.getToken().equals("-")){
                     casaToken("-");
                 }
-                else if(TL.getToken().equals("or")){
-                    casaToken("-");
+                else if((typeExps.equals("0") || typeExps.equals("1")) && TL.getToken().equals("or")){
+                    casaToken("or");
                 }
-               
-                T();
-               
+                // verifica�ao
+                typeExps2 = T();
+                
+                System.out.println("exp1 = "+typeExps + " exp2 = " + typeExps2);
+                if(typeExps.equals(typeExps2)){
+                  // gera�ao de codigo  verificar se existe mesmo essa gera�ao
+                } else {
+                    System.out.println("Error: tipos incopativeis expS");
+                }
             }
-        }
+            return typeExps;
     }
-    public static void T(){
+    
+    public static String T(){
         //System.out.println("T");
-        F();
+        String typeT = F();
         while(TL.getToken().equals("*") || TL.getToken().equals("/") || TL.getToken().equals("and") || TL.getToken().equals("%")){
+          if(typeT.equals("int")){   
             if(TL.getToken().equals("*")){
                 casaToken("*");
             }else if (TL.getToken().equals("/")){
                 casaToken("/");
-            }else if (TL.getToken().equals("and")){
-                casaToken("and");
             }else if (TL.getToken().equals("%")){
                 casaToken("%");
-            }
-           
-            F();
-           
+            }    
+          }else if (typeT.equals("1") || typeT.equals("0")){
+                if(TL.getToken().equals("and")){
+                    casaToken("and");
+                    //gera��o de codigo AND
+                }
+          }else{
+              System.out.println ("Erro : Tipo incompat�vel.");
+          }     
+          String typeT1 = F();
+          if(typeT.equals(typeT1)){
+              //gera��o de codigo
+          }else{
+              System.out.println("Erro : Tipos Incompat�veis.");
+          }       
         }
+        return typeT;
     }
  
-    public static void F(){
-       //System.out.println("F");
+    public static String F(){
+       String result = "";
         if(TL.getToken().equals("(")){
             casaToken("(");
-            Exp();
+            // add retorno na expressao verificar se expressao vai retornar algo mesmo
+            result = Exp(); 
             casaToken(")");
         }else if(TL.getToken().equals("not")){
-            casaToken("not");
-            F();
+            if(type.equals("1") || type.equals("0")){
+                casaToken("not");
+                result = F();
+                //gerea�ao de codigo
+            }else{
+                System.out.println("Erro : Tipos Incompat�veis.");
+            } 
         }else if(TL.getToken().equals("const")){
 			//geração de codigo?
-			if(isNumeric(TL.getLex())){
-				TL.setType("int");
-			}else if(TL.getLex().length() == 1){
-				TL.setType("char");
-			}else{
-				TL.setType("String");
-			}
-			tempTok2 = searchToken(TL.getToken(), alphabet);
+            if(isNumeric(TL.getLex())){
+                TL.setType("int");             
+            }else if(TL.getLex().length() == 1){
+                TL.setType("char");
+            }else{
+                TL.setType("String");
+            }
+            tempTok2 = searchToken(TL.getLex(), alphabet);
+            //System.out.println("type = "+TL.getType() + " lex = " + TL.getLex());
             casaToken("const");
+            result = tempTok2.getType();
+            //System.out.println(result);
         }else if(TL.getToken().equals("id")){
             //System.out.println("akika rai");
+            result = TL.getType();
             casaToken("id");
             if(TL.getToken().equals("[")){
                 casaToken("[");
+                // exp ta retornando algo??
                 Exp();
+                //gera��o de c�digo
                 casaToken("]");
             }
         }else{
-			casaToken("not");//tem que melhorar
-		}
+            casaToken("not");//tem que melhorar
+	}
+        return result; 
     }
 	
 	/*public static ExtractType(Token Token){
@@ -944,7 +987,7 @@ public class Compiler {
  
 		//alterar essa budega para token com type, classe e syze direito depois.
         for(String word: reservedWords){
-            TokenLex tl = new TokenLex(word, word, "", "", "", "");
+            TokenLex tl = new TokenLex(word, word, "", "", "", "","");
             alphabet.put(index, tl);
             index++;
         }
@@ -958,6 +1001,8 @@ public class Compiler {
         TL = analisadorLexico();
 		
         S();
+        
+        
         /*for(Map.Entry<Integer, TokenLex> entry : alphabet.entrySet()){   //print keys and values
             System.out.println(entry.getKey() + " : " +entry.getValue().getToken()+", "+entry.getValue().getLex());
         }*/
